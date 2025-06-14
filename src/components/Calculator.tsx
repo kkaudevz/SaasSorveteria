@@ -4,7 +4,7 @@ import { useSales } from "../contexts/SalesContext";
 import { Parser } from "expr-eval";
 
 const CalculatorContainer = styled.div`
-  max-width: 400px;
+  max-width: 800px;
   margin: 20px auto;
   padding: 20px;
   border-radius: 12px;
