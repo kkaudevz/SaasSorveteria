@@ -4,7 +4,7 @@ import { useSales } from "../contexts/SalesContext";
 import { Parser } from "expr-eval";
 
 const CalculatorContainer = styled.div`
-  max-width: 800px;
+  max-width: 400px;
   margin: 20px auto;
   padding: 20px;
   border-radius: 12px;
@@ -12,10 +12,9 @@ const CalculatorContainer = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
-const Display = styled.div`
+const Display = styled.div<{ textSize: number }>`
   background-color: black;
   color: #0f0;
-  font-size: 2.5rem;
   padding: 16px;
   border-radius: 8px;
   text-align: right;
@@ -23,6 +22,14 @@ const Display = styled.div`
   min-height: 60px;
   margin-bottom: 20px;
   user-select: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  font-size: ${({ textSize }) => textSize}rem;
+  height: auto;
+  min-height: 60px;
 `;
 
 const ButtonsGrid = styled.div`
@@ -55,10 +62,15 @@ const Calculator: React.FC = () => {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<number | null>(null);
 
-  function handleButtonClick(value: string) {
+  const handleButtonClick = (value: string) => {
     if (value === "C") {
       setInput("");
       setResult(null);
+      return;
+    }
+
+    if (value === "←") {
+      setInput((prev) => prev.slice(0, -1));
       return;
     }
 
@@ -84,17 +96,16 @@ const Calculator: React.FC = () => {
     }
 
     setInput((prev) => prev + value);
-  }
+  };
 
-  async function saveSale() {
+  const saveSale = async () => {
     let finalValue = result;
 
-    // Se ainda não foi avaliado, tenta resolver
     if (finalValue === null) {
       try {
         const parser = new Parser();
         finalValue = parser.evaluate(input);
-        setResult(finalValue); // opcional: mostrar no visor
+        setResult(finalValue);
       } catch {
         alert("Expressão inválida. Não foi possível salvar.");
         return;
@@ -113,7 +124,7 @@ const Calculator: React.FC = () => {
     } else {
       alert("Valor inválido para salvar a venda.");
     }
-  }
+  };
 
   const buttons = [
     "7",
@@ -130,14 +141,20 @@ const Calculator: React.FC = () => {
     "-",
     "0",
     ".",
-    "C",
+    "←",
     "+",
+    "C",
     "=",
   ];
 
+  // Calcular tamanho do texto dinamicamente com base no comprimento
+  const dynamicTextSize = input.length > 20 ? 1 : input.length > 10 ? 1.5 : 2.5;
+
   return (
     <CalculatorContainer>
-      <Display>{result !== null ? result : input || "0"}</Display>
+      <Display textSize={dynamicTextSize}>
+        {result !== null ? result : input || "0"}
+      </Display>
       <ButtonsGrid>
         {buttons.map((btn) => (
           <Button
